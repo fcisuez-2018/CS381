@@ -1,0 +1,33 @@
+from queue import Queue
+import pandas as pd
+class producer_pandas(threading.Thread):
+  def __init__(self,FileName,queu):       
+    self.fileName = FileName
+		self.queue=queu
+		self.chunk_size =(100000) #lines
+		threading.Thread.__init__(self)
+	def run(self):
+		self.readFileLines()            
+
+  def readFileLines(self):
+		try:
+				columnRequired=[ 'COMPANY NAME', 'CITY', 'STATE', 'ZIP’,
+				'PHONE', 'FAX', 'EMAIL', 'WEB SITE']
+				#usecols  =columnRequired
+				reader = pd.read_csv(self.fileName,chunksize=self.chunk_size, encoding
+				= "ISO-8859-1", compression='zip',usecols  =columnRequired,
+				low_memory=True, iterator =True)   
+				print(columnRequired)
+				for dataframe in reader:
+					try:                    
+						#https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.query.html#pandas.DataFrame.query
+						df =dataframe[dataframe.PHONE.str.startswith
+						('805',na=False)] 
+						self.queue.put((len(df.index),len(dataframe.index)
+						))                    
+					except Exception as e:
+						pass    
+						self.queue.put(None)
+			except Exception as e:
+				print ("error: %s" % str(e))
+				#return len(ListOfLines)        
