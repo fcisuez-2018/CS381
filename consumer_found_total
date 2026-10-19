@@ -1,0 +1,18 @@
+class consumer_found_total(threading.Thread):
+  def __init__(self,queu): 
+    threading.Thread.__init__(self)
+    self.queue=queu
+  def run(self):
+    self.readFileLines()
+  def readFileLines(self):
+    ccounter =0
+    ttotal =0
+    pair =self.queue.get()
+    while (pair is not None  ):
+      (found,total)= pair
+      print('Consumer:')
+      ccounter+=found
+      ttotal +=total
+      print ("found %d of %d" %(ccounter,ttotal))
+      pair =self.queue.get()
+    print("End of consumer")
